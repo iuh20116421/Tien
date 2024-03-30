@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post" action="#" th:action="@{/api/v1/add}" th:object="${account}">
+        <input type="text" th:field="*{accountname}" placeholder="Enter accountname">
+        <input type="text" th:field="*{address}" placeholder="Enter address">
+        <input type="text" th:field="*{pass}" placeholder="Enter pass">
+        <input type="submit" title="add">
+    </form>
+</body>
+</html>
