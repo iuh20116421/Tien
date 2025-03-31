@@ -1,75 +1,71 @@
+package QlCongTrinh;
 
-package Regex_QLSach;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Calendar;
-
-import javax.swing.BorderFactory;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-
-public class FrmDanhMucSach extends JFrame implements ActionListener {
+public class FrmCongTrinh extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private JTextField txtMaSach;
-	private JTextField txtTuaSach;
-	private JTextField txtTacGia;
-	private JTextField txtNamXB;
-	private JTextField txtNhaXB;
-	private JTextField txtSoTrang;
-	private JTextField txtDonGia;
-	private JTextField txtISBN;
-	private JButton btnThem;
-	private JTable table;
+	private JTextField txtTenCT;
+	private JTextField txtChiPhiUocTinh;
+	private JComboBox cboLoaiCT;
+	private JTextField txtMaCT;
+	private JTextField txtChuDauTu;
 	private JTextField txtMess;
-	private JButton btnXoaRong;
 	private DefaultTableModel tableModel;
-	private JComboBox<String> cboMaSach;
+	private JTable table;
+	private JButton btnXoa;
+	private JButton btnSua;
+	private JButton btnTim;
+	private JButton btnLamMoi;
+	private JButton btnLuu;
+	private JButton btnThem;
+	private JTextField txtMaCTSearch;
+	private int selectedRow;
+	private File file = new File("src/QlCongTrinh/congtrinh.txt");
 
-	public FrmDanhMucSach() {
-		setTitle("ÔN TẬP BIỂU THỨC CHÍNH QUY");
+	public FrmCongTrinh() {
+		setTitle("Quản lý Công Trình");
 		setSize(900, 600);
 		setLocationRelativeTo(null);
+		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		JPanel pnlNorth;
-		add(pnlNorth = new JPanel(), BorderLayout.NORTH);
+		buildUI();
+		loadDataFromFile();
+	}
+
+	private void buildUI() {
+
+		// North Panel (Form nhập liệu)
+		JPanel pnlNorth = new JPanel();
+		add(pnlNorth, BorderLayout.NORTH);
 		pnlNorth.setPreferredSize(new Dimension(0, 180));
-		pnlNorth.setBorder(BorderFactory.createTitledBorder("Records Editor"));
-		pnlNorth.setLayout(null); // Absolute layout
 
-		JLabel lblMaSach, lblTuaSach, lblTacGia, lblNamXB, lblNhaXB, lblSoTrang, lblDonGia, lblISBN;
-		pnlNorth.add(lblMaSach = new JLabel("Ma sach: "));
-		pnlNorth.add(lblTuaSach = new JLabel("Tên Sách "));
-		pnlNorth.add(lblTacGia = new JLabel("Tac giả: "));
-		pnlNorth.add(lblNamXB = new JLabel("Năm Xuất bản: "));
-		pnlNorth.add(lblNhaXB = new JLabel("Nhà  xuất bản "));
-		pnlNorth.add(lblSoTrang = new JLabel("Số trang: "));
-		pnlNorth.add(lblDonGia = new JLabel("Đơn giá: "));
-		pnlNorth.add(lblISBN = new JLabel("International Standard Book Number: "));
+		TitledBorder titledBorder = BorderFactory.createTitledBorder("- THÔNG TIN CÔNG TRÌNH -");
+		titledBorder.setTitleFont(new Font("Arial", Font.BOLD, 18));
+		titledBorder.setTitleJustification(TitledBorder.CENTER);
+		pnlNorth.setBorder(titledBorder);
+		pnlNorth.setLayout(null);
+		// Khi
+//		pnlNorth.setBorder(BorderFactory.createTitledBorder("Thông Tin Công Trình"));
+//		pnlNorth.setLayout(null);
 
-		pnlNorth.add(txtMaSach = new JTextField());
-		pnlNorth.add(txtTuaSach = new JTextField());
-		pnlNorth.add(txtTacGia = new JTextField());
-		pnlNorth.add(txtNamXB = new JTextField());
-		pnlNorth.add(txtNhaXB = new JTextField());
-		pnlNorth.add(txtSoTrang = new JTextField());
-		pnlNorth.add(txtDonGia = new JTextField());
-		pnlNorth.add(txtISBN = new JTextField());
+		JLabel lblMaCT, lblTenCT, lblChiPhiUocTinh, lblLoaiCT, lblChuDauTu;
+		pnlNorth.add(lblMaCT = new JLabel("Mã Công Trình: "));
+		pnlNorth.add(lblTenCT = new JLabel("Tên Công Trình: "));
+		pnlNorth.add(lblChiPhiUocTinh = new JLabel("Chi Phí Ước Tính: "));
+		pnlNorth.add(lblLoaiCT = new JLabel("Loại Công Trình: "));
+		pnlNorth.add(lblChuDauTu = new JLabel("Chủ Đầu Tư: "));
+
+		pnlNorth.add(txtMaCT = new JTextField());
+		pnlNorth.add(txtTenCT = new JTextField());
+		pnlNorth.add(txtChiPhiUocTinh = new JTextField());
+		pnlNorth.add(cboLoaiCT = new JComboBox<>(new String[] { "Nhà ở", "Kho xưởng" }));
+		pnlNorth.add(txtChuDauTu = new JTextField());
 
 		pnlNorth.add(txtMess = new JTextField());
 		txtMess.setEditable(false);
@@ -77,180 +73,203 @@ public class FrmDanhMucSach extends JFrame implements ActionListener {
 		txtMess.setForeground(Color.red);
 		txtMess.setFont(new Font("Arial", Font.ITALIC, 12));
 
-		int w1 = 100, w2 = 300, h = 20;
-		lblMaSach.setBounds(20, 20, w1, h);
-		txtMaSach.setBounds(120, 20, 200, h);
+		int w1 = 150, w2 = 300, w3 = 300, h = 20;
 
-		lblTuaSach.setBounds(20, 45, w1, h);
-		txtTuaSach.setBounds(120, 45, w2, h);
-		lblTacGia.setBounds(450, 45, w1, h);
-		txtTacGia.setBounds(570, 45, w2, h);
+		// Kéo dài mã công trình
+		lblMaCT.setBounds(20, 20, w1, h);
+		txtMaCT.setBounds(120, 20, 750, h); // Kéo dài txtMaCT
 
-		lblNamXB.setBounds(20, 70, w1, h);
-		txtNamXB.setBounds(120, 70, w2, h);
-		lblNhaXB.setBounds(450, 70, w1, h);
-		txtNhaXB.setBounds(570, 70, w2, h);
+		// Tên công trình và chi phí ước tính chung hàng
+		lblTenCT.setBounds(20, 45, w1, h);
+		txtTenCT.setBounds(120, 45, w2, h);
+		lblChiPhiUocTinh.setBounds(450, 45, w1, h);
+		txtChiPhiUocTinh.setBounds(570, 45, w3, h);
 
-		lblSoTrang.setBounds(20, 95, w1, h);
-		txtSoTrang.setBounds(120, 95, w2, h);
-		lblDonGia.setBounds(450, 95, w1, h);
-		txtDonGia.setBounds(570, 95, w2, h);
+		// Loại công trình và chủ đầu tư chung hàng
+		lblLoaiCT.setBounds(20, 70, w1, h);
+		cboLoaiCT.setBounds(120, 70, 100, h);
+		lblChuDauTu.setBounds(450, 70, w1, h);
+		txtChuDauTu.setBounds(570, 70, w3, h);
 
-		lblISBN.setBounds(20, 120, 220, h);
-		txtISBN.setBounds(240, 120, 180, h);
-		txtMess.setBounds(20, 145, 550, 20);
-
-		// Pháº§n Center
-		JPanel pnlCenter;
+		txtMess.setBounds(20, 95, 550, 20);
+		// Center Panel (Table)
+		JPanel pnlCenter = new JPanel();
 		add(pnlCenter = new JPanel(), BorderLayout.CENTER);
-		pnlCenter.add(btnThem = new JButton("Thêm vào Table"));
-		pnlCenter.add(btnXoaRong = new JButton("Làm rỗng"));
-		// Pháº§n South
-		JScrollPane scroll;
-		String[] headers = "MaSach;TuaSach;TacGia;NamXuatBan;NhaXuatBan;SoTrang;DonGia;ISBN".split(";");
+		pnlCenter.setLayout(new BorderLayout());
 
+		String[] headers = "MaCT;TenCT;TongChiPhi;LoaiCT;ChuDauTu".split(";");
 		tableModel = new DefaultTableModel(headers, 0);
-		add(scroll = new JScrollPane(table = new JTable(tableModel), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.SOUTH);
-		scroll.setBorder(BorderFactory.createTitledBorder("Danh sách các quyển sách:"));
+		table = new JTable(tableModel);
+		JScrollPane scroll = new JScrollPane(table);
+		pnlCenter.add(scroll, BorderLayout.CENTER);
+//		scroll.setBorder(BorderFactory.createTitledBorder("Danh sách công trình"));
 		table.setRowHeight(20);
 		scroll.setPreferredSize(new Dimension(0, 350));
+
+		table.addMouseListener(new MouseAdapter() {
+			private int selectedRow;
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				selectedRow = table.getSelectedRow();
+				if (selectedRow != -1) {
+					txtMaCT.setText(tableModel.getValueAt(selectedRow, 0).toString());
+					txtTenCT.setText(tableModel.getValueAt(selectedRow, 1).toString());
+					txtChiPhiUocTinh.setText(tableModel.getValueAt(selectedRow, 2).toString());
+					cboLoaiCT.setSelectedItem(tableModel.getValueAt(selectedRow, 3).toString());
+					txtChuDauTu.setText(tableModel.getValueAt(selectedRow, 4).toString());
+					txtMess.setText("Đã chọn công trình để sửa!");
+				}
+			}
+		});
+
+		// South Panel (Nút sự kiện)
+		JPanel pnlSouth = new JPanel();
+		add(pnlSouth, BorderLayout.SOUTH);
+		pnlSouth.setLayout(new FlowLayout());
+
+		btnThem = new JButton("Thêm");
+		btnXoa = new JButton("Xóa");
+		btnSua = new JButton("Sửa");
+		btnLuu = new JButton("Lưu File");
+		btnLamMoi = new JButton("Làm Mới");
+		btnTim = new JButton("Tìm");
+
+		txtMaCTSearch = new JTextField(10);
+
+		pnlSouth.add(new JLabel("Nhập mã công trình cần tìm: "));
+		pnlSouth.add(txtMaCTSearch);
+		pnlSouth.add(btnTim);
+		pnlSouth.add(btnThem);
+		pnlSouth.add(btnLamMoi);
+		pnlSouth.add(btnSua);
+		pnlSouth.add(btnXoa);
+		pnlSouth.add(btnLuu);
+
+		// Event listener cho các nút
 		btnThem.addActionListener(this);
-		btnXoaRong.addActionListener(this);
+		btnSua.addActionListener(this);
+		btnXoa.addActionListener(this);
+		btnLuu.addActionListener(this);
+		btnLamMoi.addActionListener(this);
+		btnTim.addActionListener(this);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Object o = e.getSource();
-		if (o.equals(btnThem)) {
-			if (isValdate()) {
-				Sach s = revertSachFromTextFields();
-				txtMess.setText("Thêm thành công 1 cuốn sách");
-//				cboMaSach.addItem(txtMaSach.getText());
-				tableModel.addRow(s.toRow());
-
-			} else if (o.equals(btnXoaRong)) {
-				txtMaSach.setText("");
-				txtTuaSach.setText("");
-				txtTacGia.setText("");
-				txtNamXB.setText("");
-				txtNhaXB.setText("");
-				txtSoTrang.setText("");
-				txtDonGia.setText("");
-				txtISBN.setText("");
-				txtMaSach.setEditable(true);
-				txtMaSach.requestFocus();
+		Object source = e.getSource();
+		if (source.equals(btnThem)) {
+			// Kiểm tra các trường hợp rỗng
+			if (txtMaCT.getText().trim().isEmpty() || txtTenCT.getText().trim().isEmpty()) {
+				txtMess.setText("Các trường mã công trình và tên công trình không được để trống!");
+				return;
 			}
-		}
-		if (o.equals(btnXoaRong)) {
-			txtMaSach.setText("");
-			txtTuaSach.setText("");
-			txtTacGia.setText("");
-			txtNamXB.setText("");
-			txtNhaXB.setText("");
-			txtSoTrang.setText("");
-			txtDonGia.setText("");
-			txtISBN.setText("");
-			txtMaSach.setEditable(true);
-			txtMaSach.requestFocus();
-		}
-	}
 
-	private Sach revertSachFromTextFields() {
-		String maSach = txtMaSach.getText().trim();
-		String tuaSach = txtTuaSach.getText().trim();
-		String tacGia = txtTacGia.getText().trim();
-
-		String nam = txtNamXB.getText().trim();
-		int namXB = nam.length() == 0 ? 0 : Integer.parseInt(nam); // Để trống thì coi như là 0
-
-		String nhaXB = txtNhaXB.getText().trim();
-
-		String trang = txtSoTrang.getText().trim();
-		int soTrang = trang.length() == 0 ? 0 : Integer.parseInt(trang);
-
-		String gia = txtDonGia.getText().trim();
-		double donGia = gia.equals("") ? 0 : Double.parseDouble(gia);
-
-		String isbn = txtISBN.getText().trim();
-		return new Sach(maSach, tuaSach, tacGia, namXB, nhaXB, soTrang, donGia, isbn);
-	}
-
-	public boolean isValdate() {
-		String maSach = txtMaSach.getText().trim();
-		String tuaSach = txtTuaSach.getText().trim();
-		String tacGia = txtTacGia.getText().trim();
-		String nam = txtNamXB.getText().trim();
-		String donGia = txtDonGia.getText().trim();
-		String isbn = txtISBN.getText().trim();
-		String soTrang = txtSoTrang.getText().trim();
-		if (!(maSach.length() > 0 && maSach.matches("[A-Z]\\d{3}"))) {
-			JOptionPane.showMessageDialog(this, "Error: Mã sách theo mẫu: [A-Z]\\d{3}");
-			return false;
-		}
-		if (!(tuaSach.length() > 0 && tuaSach.matches("[a-zA-Z' ]+"))) {
-			showMessage("Error: a sách theo mẫu: [a-zA-Z' ]+", txtTuaSach);
-			return false;
-		}
-		if (!(tacGia.length() > 0 && tacGia.matches("[a-zA-Z' ]+"))) {
-			showMessage("Error: tác giả theo mẫu: [a-zA-Z' ]+", txtTacGia);
-			return false;
-		}
-		if (nam.length() > 0) {
-			try {
-				int x = Integer.parseInt(nam);
-				int namHienTai = Calendar.getInstance().get(Calendar.YEAR);
-				if (!(x >= 1900 && x < namHienTai)) {
-					showMessage("Error:Năm xuất bản >=1900 && <=" + namHienTai, txtNamXB);
-					return false;
+			// Kiểm tra mã công trình đã tồn tại hay chưa
+			String maCT = txtMaCT.getText().trim();
+			for (int i = 0; i < tableModel.getRowCount(); i++) {
+				if (tableModel.getValueAt(i, 0).equals(maCT)) {
+					txtMess.setText("Mã công trình đã tồn tại!");
+					return;
 				}
-			} catch (NumberFormatException ex) {
-				showMessage("Năm xuất bản phải nhập số", txtNamXB);
-				return false;
-			}
-			// TODO: handle exception
-		}
-		if (soTrang.length() > 0) {
-			try {
-				int x = Integer.parseInt(soTrang);
-				if (x <= 0) {
-					showMessage("Error: Số trang phải nhập số nguyên dương.", txtSoTrang);
-					return false;
-				}
-			} catch (NumberFormatException ex) {
-				showMessage("Error: Số trang phải nhập số nguyên dương.", txtSoTrang);
-				return false;
-			}
-		}
-
-		if (donGia.length() > 0) {
-			try {
-				double y = Double.parseDouble(donGia);
-				if (y < 0) {
-					showMessage("Error: Đơn giá phải > 0.", txtDonGia);
-					return false;
-				}
-			} catch (NumberFormatException ex) {
-				showMessage("Error: Đơn giá phải nhập số.", txtDonGia);
-				return false;
-			}
-		}
-		// ISBN có mẫu dạng X-X-X-X (hoặc X-X-X-X-X).
-		// Trong đó, X gồm các ký số, ít nhất là 1 ký số
-		if (isbn.length() > 0)
-			if (!isbn.matches("\\d+(-\\d+){3,4}")) {
-				showMessage("Error: ISBN có mẫu dạng  X-X-X-X  (hoặc X-X-X-X-X).", txtISBN);
-				return false;
 			}
 
-		return true;
+			// Thêm công trình vào bảng và cboMaCT
+			String[] rowData = { maCT, txtTenCT.getText().trim(), txtChiPhiUocTinh.getText().trim(),
+					cboLoaiCT.getSelectedItem().toString(), txtChuDauTu.getText().trim() };
+			tableModel.addRow(rowData);
+
+			txtMess.setText("Thêm thành công!");
+		} else if (source.equals(btnXoa)) {
+			if (selectedRow != -1) {
+				tableModel.removeRow(selectedRow);
+				txtMess.setText("Xóa thành công!");
+				clearFields();
+			} else {
+				txtMess.setText("Vui lòng chọn công trình để xóa!");
+			}
+
+		} else if (source.equals(btnTim)) {
+			String maCTSearch = txtMaCTSearch.getText();
+			for (int i = 0; i < tableModel.getRowCount(); i++) {
+				if (tableModel.getValueAt(i, 0).equals(maCTSearch)) {
+					table.setRowSelectionInterval(i, i);
+					return;
+				}
+			}
+			JOptionPane.showMessageDialog(this, "Không tìm thấy công trình!");
+
+		} else if (source.equals(btnSua)) {
+			if (selectedRow != -1) {
+				tableModel.setValueAt(txtMaCT.getText().trim(), selectedRow, 0);
+				tableModel.setValueAt(txtTenCT.getText().trim(), selectedRow, 1);
+				tableModel.setValueAt(txtChiPhiUocTinh.getText().trim(), selectedRow, 2);
+				tableModel.setValueAt(cboLoaiCT.getSelectedItem().toString(), selectedRow, 3);
+				tableModel.setValueAt(txtChuDauTu.getText().trim(), selectedRow, 4);
+				txtMess.setText("Sửa thành công!");
+			} else {
+				txtMess.setText("Vui lòng chọn công trình để sửa!");
+			}
+		} else if (source.equals(btnLuu)) {
+			// Lưu dữ liệu từ JTable vào file txt
+			saveDataToFile();
+		} else if (source.equals(btnLamMoi)) {
+			clearFields();
+		}
 	}
 
-	private void showMessage(String message, JTextField txt) {
-		txt.requestFocus();
-		txtMess.setText(message);
-
+	private void saveDataToFile() {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			for (int i = 0; i < tableModel.getRowCount(); i++) {
+				for (int j = 0; j < tableModel.getColumnCount(); j++) {
+					bw.write(tableModel.getValueAt(i, j).toString());
+					if (j < tableModel.getColumnCount() - 1) {
+						bw.write(";");
+					}
+				}
+				bw.newLine();
+			}
+			txtMess.setText("Dữ liệu đã được lưu vào file!");
+		} catch (IOException e) {
+			txtMess.setText("Lỗi khi lưu dữ liệu!");
+			e.printStackTrace();
+		}
 	}
 
+	private void clearFields() {
+		txtMaCT.setText("");
+		txtTenCT.setText("");
+		txtChiPhiUocTinh.setText("");
+		cboLoaiCT.setSelectedIndex(0);
+		txtChuDauTu.setText("");
+		selectedRow = -1;
+	}
+
+	private void searchCongTrinh() {
+		String maCTSearch = txtMaCTSearch.getText();
+		for (int i = 0; i < tableModel.getRowCount(); i++) {
+			if (tableModel.getValueAt(i, 0).equals(maCTSearch)) {
+				table.setRowSelectionInterval(i, i);
+				return;
+			}
+		}
+		JOptionPane.showMessageDialog(this, "Không tìm thấy công trình!");
+	}
+
+	private void loadDataFromFile() {
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] data = line.split(";");
+				tableModel.addRow(data);
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		new FrmCongTrinh().setVisible(true);
+	}
 }
-
